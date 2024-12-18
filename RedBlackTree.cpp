@@ -21,47 +21,47 @@ private:
     Node *root;
     Node *nil;
 
-    void rightRotate(Node *&root , Node *&A){
-        Node *B = A->left;
-        A->left = B->right;
+    void rightRotate(Node *&node){
+        Node *leftchild = node->left;
+        node->left = leftchild->right;
 
-        if (B->right != nullptr){
-            B->right->parent = A;
+        if (leftchild->right != nil){
+            leftchild->right->parent = node;
         }
-        B->parent = A->parent;
+        leftchild->parent = node->parent;
 
-        if (A->parent == nullptr){
-            root = B;
-        }else if (A == A->parent->left){
-            A->parent->left = B;
+        if (node->parent == nullptr){
+            root = leftchild;
+        }else if (node == node->parent->left){
+            node->parent->left = leftchild;
         }else{
-            A->parent->right = B;
+            node->parent->right = leftchild;
         }
-        B->right = A;
-        A->parent = B;
+        leftchild->right = node;
+        node->parent = leftchild;
     }
 
-    void lefttRotate(Node *&root , Node *&A){
-        Node *B = A->right;
-        A->right = B->left;
+    void lefttRotate(Node *&node){
+        Node *rightChild = node->right;
+        node->right = rightChild->left;
 
-        if (B->left != nullptr){
-            B->left->parent = A;
+        if (rightChild->left != nil){
+            rightChild->left->parent = node;
         }
-        B->parent = A->parent;
+        rightChild->parent = node->parent;
 
-        if (A->parent == nullptr){
-            root = B;
-        }else if (A == A->parent->left){
-            A->parent->left = B;
+        if (node->parent == nullptr){
+            root = rightChild;
+        }else if (node == node->parent->left){
+            node->parent->left = rightChild;
         }else{
-            A->parent->right = B;
+            node->parent->right = rightChild;
         }
-        B->left = A;
-        A->parent = B;
+        rightChild->left = node;
+        node->parent = rightChild;
     }
     // function handle cases of insertion
-    void handelInsertion(Node *&root , Node *&node){
+    void handelInsertion(Node *&node){
         Node *parent , *grandParent , *uncle = nullptr;
         // handle until this condition fail
         while (node != root && node->color == true && node->parent->color == true){
@@ -71,7 +71,7 @@ private:
             if (parent == grandParent->left){
                 uncle = grandParent->right;
                 // uncle red and in right location
-                if (uncle != nullptr && uncle->color == true){
+                if ( uncle->color == true){
                     // recolor
                     grandParent->color = true;
                     parent->color = false;
@@ -79,21 +79,21 @@ private:
 
                     node = grandParent;
                 }
-                // uncle black and in right location
+                    // uncle black and in right location
                 else{
                     if (node == parent->right){
-                        lefttRotate(root , parent);
+                        lefttRotate(parent);
                         node = parent;
                         parent = node->parent;
                     }
-                    rightRotate(root , grandParent);
+                    rightRotate(grandParent);
                     swap(parent->color , grandParent->color);
                     node = parent;
                 }
             } else{
                 uncle = grandParent->left;
                 // uncle red and in left location
-                if (uncle != nullptr && uncle->color == true){
+                if (uncle->color == true){
                     // recolor
                     grandParent->color = true;
                     parent->color = false;
@@ -101,14 +101,14 @@ private:
 
                     node = grandParent;
                 }
-                // uncle black and in left location
+                    // uncle black and in left location
                 else{
                     if (node == parent->left){
-                        rightRotate(root , parent);
+                        rightRotate(parent);
                         node = parent;
                         parent = node->parent;
                     }
-                    lefttRotate(root , grandParent);
+                    lefttRotate(grandParent);
                     swap(parent->color , grandParent->color);
                     node = parent;
                 }
@@ -119,22 +119,21 @@ private:
 
     // Function to traverse tree elements
     void printTree(Node *node){
-        if (node == nullptr){
-            return;
+        cout<< node->key <<", "<<((node->color )? "Red" : "Black")<<endl;
+
+        if (node->left != nil){
+            printTree(node->left);
         }
-        printTree(node->left);
-        if (node->color == true){
-            cout<<node->key <<", Red\n";
-        } else{
-            cout<<node->key <<", Black\n";
+        if (node->right != nil){
+            printTree(node->right);
         }
-        printTree(node->right);
+        return;
     }
     // function to handle deletion cases
     void handleDeletion(Node *&node){
         Node *sibling = nullptr;
         // handle until this condition fail
-        while (node != root && (node == nullptr || node->color == false)){
+        while (node != root && node->color == false){
             // node in left location
             if (node == node->parent->left){
                 sibling = node->parent->right;
@@ -142,33 +141,28 @@ private:
                 if (sibling->color == true){
                     sibling->color = false;
                     node->parent->color = true;
-                    lefttRotate(root,node->parent);
+                    lefttRotate(node->parent);
                     sibling = node->parent->right;
                 }
                 // its children black : both black
-                if ((sibling == nullptr) || (sibling->left == nullptr || sibling->left->color == false)
-                    && (sibling->right == nullptr || sibling->right->color == false)){
+                if (sibling->left->color == false && sibling->right->color == false){
                     // recolor sibling and double black to parent
-                    if (sibling != nullptr) {sibling->color = true;}
+                    sibling->color = true;
                     node = node->parent;
                 } else{
                     // sibling right child black : near is red
-                    if (sibling->right == nullptr || sibling->right->color == false){
+                    if (sibling->right->color == false){
                         // recolor sibling and double black to parent
-                        if (sibling->left != nullptr){
-                            sibling->left->color = false;
-                        }
+                        sibling->left->color = false;
                         sibling->color = true;
-                        rightRotate(root,sibling);
+                        rightRotate(sibling);
                         sibling = node->parent->right;
                     }
                     // sibling right child red : far is red
                     sibling->color = node->parent->color;
                     node->parent->color = false;
-                    if (sibling->right != nullptr){
-                         sibling->right->color = false;
-                    }
-                    lefttRotate(root,node->parent);
+                    sibling->right->color = false;
+                    lefttRotate(node->parent);
                     node = root;
                 }
             }
@@ -176,47 +170,40 @@ private:
                 // node in right location
                 sibling = node->parent->left;
                 // if sibling red
-                if (sibling != nullptr && sibling->color == true){
+                if (sibling->color == true){
                     sibling->color = false;
                     node->parent->color = true;
-                    rightRotate(root,node->parent);
+                    rightRotate(node->parent);
                     sibling = node->parent->left;
                 }
                 // its children black
-                if ((sibling == nullptr) || (sibling->left == nullptr || sibling->left->color == false)
-                    && (sibling->right == nullptr || sibling->right->color == false)){
+                if (sibling->left->color == false && sibling->right->color == false){
                     // recolor sibling and double black to parent
-                    if (sibling != nullptr) {sibling->color = true;}
+                    sibling->color = true;
                     node = node->parent;
                 } else{
                     // sibling left child black : near is red
-                    if (sibling->left == nullptr || sibling->left->color == false){
+                    if (sibling->left->color == false){
                         // recolor sibling and double black to parent
-                        if (sibling->right != nullptr){
-                            sibling->right->color = false;
-                        }
+                        sibling->right->color = false;
                         sibling->color = true;
-                        lefttRotate(root,sibling);
+                        lefttRotate(sibling);
                         sibling = node->parent->left;
                     }
                     // sibling left child red : far is red
                     sibling->color = node->parent->color;
                     node->parent->color = false;
-                    if (sibling->left != nullptr){
-                        sibling->left->color = false;
-                    }
-                    rightRotate(root,node->parent);
+                    sibling->left->color = false;
+                    rightRotate(node->parent);
                     node = root;
                 }
             }
         }
-        if (node != nullptr){
-            node->color = false;
-        }
+        node->color = false;
     }
     // function to find successor : minimum in left subtree
     Node* findSuccessor(Node *node){
-        while (node->left != nullptr){
+        while (node->left != nil){
             node = node->left;
         }
         return node;
@@ -235,103 +222,38 @@ private:
         else{
             n1->parent->right = n2;
         }
-        if (n2 != nullptr){
-            n2->parent = n1->parent;}
-    }
-
-    // function to search about node to delete it
-    Node* search(Node* node , int key){
-        while (node != nullptr){
-            if (node->key == key){
-                return node;
-            }
-            if (node->key <= key){
-                node = node->right;
-            } else{
-                node = node->left;
-            }
-        }
-        return nullptr;
-    }
-
-    void removeNode(Node *node, int key){
-        Node *targetNode = search(node,key);
-        if (targetNode == nullptr){
-            cout<<"Key not found,try another key\n";
-            return;
-        }
-        Node *successorChild ,*tempNode = targetNode;
-        // save color of node
-        bool tempColor = tempNode->color;
-        // node has one child in right side
-        if (targetNode->left == nullptr){
-            successorChild = targetNode->right;
-            replaceNode(targetNode, successorChild);
-        }
-        // node has one child in left side
-        else if (targetNode->right == nullptr){
-            successorChild = targetNode->left;
-            replaceNode(targetNode, successorChild);
-        }
-        // has two children
-        else{
-            tempNode = findSuccessor(tempNode->right);
-            tempColor = tempNode->color;
-            successorChild = tempNode->right;
-            if ( tempNode->parent == targetNode){
-                if (successorChild != nullptr){
-                    successorChild->parent = tempNode;
-                }
-            } else{
-                replaceNode(tempNode,targetNode->right);
-                tempNode->right = targetNode->right;
-                tempNode->right->parent = tempNode;
-            }
-            replaceNode(targetNode,tempNode);
-            tempNode->left = targetNode->left;
-            tempNode->left->parent = tempNode;
-            tempNode->color = targetNode->color;
-        }
-        delete targetNode;
-        if (tempColor == false){
-            handleDeletion(successorChild);
-        }
+        n2->parent = n1->parent;
     }
 
 public:
     RedBlackTree (){
-        root = nullptr;
+        nil = new Node(0);
+        nil->color = false;
+        root = nil;
     }
     // insertion Function
     void insert(int key){
-        Node *node = new Node(key);
+        Node *newnode = new Node(key) , *parent = nullptr , *current = root;
 
-        if (root == nullptr){
-            node->color = false;
-            root = node;
+        newnode->left = nil;
+        newnode->right = nil;
+
+        while (current != nil){
+            parent = current;
+            if (newnode->key < current->key){
+                current = current->left;
+            } else{
+                current = current->right;}
         }
-        else{
-            Node *node2 = root;
-            Node *parent = nullptr;
-
-            while (node2 != nullptr){
-                parent = node2;
-                if (node->key < node2->key){
-                    node2 = node2->left;
-                } else{
-                    node2 = node2->right;
-                }
-            }
-            node->parent = parent;
-            if (node->key < parent->key){
-                parent->left = node;
-            }
-            else{
-                parent->right = node;
-            }
-            handelInsertion(root,node);
-
+        newnode->parent = parent;
+        if (parent == nullptr){
+            root = newnode;
+        } else if (newnode->key < parent->key){
+            parent->left = newnode;
+        } else{
+            parent->right = newnode;
         }
+        handelInsertion(newnode);
     }
 
     void Print(){
@@ -339,8 +261,60 @@ public:
         cout<<"\n";
     }
 
+
+    // function to search about node to delete it
+
     void remove(int key){
-        removeNode(root,key);
+        Node *temp = root;
+        while (temp != nil){
+            if (temp->key == key){
+                break;
+            } else if (key < temp->key){
+                temp = temp->left;
+            } else{
+                temp = temp->right;
+            }
+        }
+        if (temp == nil){
+            cout<<"Key not found,try another key\n";
+            return;
+        }
+        Node *targetNode = temp;
+        // save color of node
+        bool originalColor = targetNode->color;
+        Node *successorChild;
+        // node has one child in right side
+        if (temp->left == nil){
+            successorChild = temp->right;
+            replaceNode(temp, temp->right);
+        }
+            // node has one child in left side
+        else if (temp->right == nullptr){
+            successorChild = targetNode->left;
+            replaceNode(temp, temp->left);
+        }
+            // has two children
+        else{
+            targetNode = findSuccessor(temp->right);
+            originalColor = targetNode->color;
+            successorChild = targetNode->right;
+            if ( targetNode->parent == temp){
+                successorChild->parent = targetNode;
+
+            } else{
+                replaceNode(targetNode,targetNode->right);
+                targetNode->right = temp->right;
+                targetNode->right->parent = targetNode;
+            }
+            replaceNode(temp,targetNode);
+            targetNode->left = temp->left;
+            targetNode->left->parent = targetNode;
+            targetNode->color = temp->color;
+        }
+        delete temp;
+        if (originalColor == false){
+            handleDeletion(successorChild);
+        }
     }
 
 };
@@ -351,11 +325,10 @@ int main(){
     RBT.insert(10);
     RBT.insert(20);
     RBT.insert(30);
-    RBT.insert(15);
     RBT.insert(25);
     RBT.Print();
-    cout<<"Tree: \n";
-    RBT.remove(30);
+    cout<<"Tree After Deletion: \n";
+    RBT.remove(10);
     RBT.Print();
     return 0;
 }
