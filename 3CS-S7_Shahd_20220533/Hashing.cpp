@@ -1,6 +1,3 @@
-//
-// Created by Shahd Elnassag on 11/11/2024.
-//
 #include <iostream>
 #include <vector>
 #include <list>
@@ -21,17 +18,7 @@ int multiplicationMethod(int key) {
 
 int midSquareMethod(int key) {
     int squared = key * key;
-    string str_square = to_string(squared);
-    int numBits = ceil(log2(TABLE_SIZE));
-    int numDigits = ceil(numBits / log2(10));
-
-    if (str_square.length() <= numDigits) {
-        return squared % TABLE_SIZE;
-    }
-
-    int start = (str_square.length() - numDigits) / 2;
-    string str_mid = str_square.substr(start, numDigits);
-    int mid = stoi(str_mid);
+    int mid = (squared / 100) % 100;
     return mid % TABLE_SIZE;
 }
 

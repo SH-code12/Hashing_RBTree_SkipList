@@ -1,6 +1,3 @@
-//
-// Created by Shahd Elnassag on 11/11/2024.
-//
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -209,12 +206,14 @@ void GameScores::updateScore(string playerName, int newScore) {
     if (playerMap.find(playerName) != playerMap.end()) {
         int oldScore = playerMap[playerName];
         scores.erase(scores.find(oldScore));
-        skipList.remove(oldScore);}
+        skipList.remove(oldScore);
+    }
     playerMap[playerName] = newScore;
     scores.insert(newScore);
     skipList.insert(newScore);
     cout << "Player " << playerName << "'s score updated to " << newScore << endl;
 }
+
 vector<pair<string, int>> GameScores::getTopPlayers(int N) {
     vector<pair<string, int>> leaderboard;
     auto it = scores.rbegin(); // Access the highest scores
@@ -223,8 +222,11 @@ vector<pair<string, int>> GameScores::getTopPlayers(int N) {
             if (player.second == *it) {
                 leaderboard.emplace_back(player.first, player.second);
                 N--;
-                break;}}
-        ++it;}
+                break;
+            }
+        }
+        ++it;
+    }
     return leaderboard;
 }
 
